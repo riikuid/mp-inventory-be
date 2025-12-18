@@ -17,16 +17,12 @@ class Component extends Model
     protected $fillable = [
         'product_id',
         'name',
+        'type',
         'brand_id',
         'manuf_code',
-        'spec_json',
-        'is_active',
+        'specification',
     ];
 
-    protected $casts = [
-        'spec_json' => 'array',
-        'is_active' => 'boolean',
-    ];
 
     public function product()
     {
@@ -41,7 +37,7 @@ class Component extends Model
     public function variants()
     {
         return $this->belongsToMany(Variant::class, 'variant_components')
-            ->withPivot('quantity')
+            ->withPivot('quantity_needed')
             ->withTimestamps();
     }
 

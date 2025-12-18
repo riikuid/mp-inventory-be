@@ -16,8 +16,8 @@ class Product extends Model
     protected $fillable = [
         'name',
         'category_id',
+        'machine_purchase',
         'description',
-        'is_active',
     ];
 
     public function category()

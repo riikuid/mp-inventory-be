@@ -16,18 +16,10 @@ class CompanyItem extends Model
 
     protected $fillable = [
         'product_id',
+        'default_rack_id',
         'company_code',
-        'is_set',
-        'has_components',
-        'initialized_at',
-        'initialized_by',
+        'specification',
         'notes',
-    ];
-
-    protected $casts = [
-        'is_set' => 'boolean',
-        'has_components' => 'boolean',
-        'initialized_at' => 'datetime',
     ];
 
     public function product()
@@ -38,10 +30,5 @@ class CompanyItem extends Model
     public function variants()
     {
         return $this->hasMany(Variant::class);
-    }
-
-    public function bufferStocks()
-    {
-        return $this->hasMany(BufferStock::class);
     }
 }

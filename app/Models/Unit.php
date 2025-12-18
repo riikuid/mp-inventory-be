@@ -20,14 +20,16 @@ class Unit extends Model
         'parent_unit_id',
         'qr_value',
         'status',
-        'location',
+        'rack_id',
+
         'print_count',
+        'last_printed_by',
         'last_printed_at',
+
         'synced_at',
         'last_modified_at',
         'created_by',
         'updated_by',
-        'last_printed_by',
     ];
 
     protected $casts = [

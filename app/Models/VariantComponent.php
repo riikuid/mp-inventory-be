@@ -18,7 +18,7 @@ class VariantComponent extends Model
     protected $fillable = [
         'variant_id',
         'component_id',
-        'quantity',
+        'quantity_needed',
     ];
 
     public function variant()

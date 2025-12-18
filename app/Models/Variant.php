@@ -16,20 +16,14 @@ class Variant extends Model
 
     protected $fillable = [
         'company_item_id',
+        'rack_id',
         'brand_id',
         'name',
-        'default_location',
-        'spec_json',
-        'initialized_at',
-        'initialized_by',
-        'is_active',
+        'manuf_code',
+        'uom',
+        'specification',
     ];
 
-    protected $casts = [
-        'spec_json' => 'array',
-        'is_active' => 'boolean',
-        'initialized_at' => 'datetime',
-    ];
 
     public function companyItem()
     {
@@ -49,7 +43,7 @@ class Variant extends Model
     public function components()
     {
         return $this->belongsToMany(Component::class, 'variant_components')
-            ->withPivot('quantity')
+            ->withPivot('quantity_needed')
             ->withTimestamps();
     }
 
