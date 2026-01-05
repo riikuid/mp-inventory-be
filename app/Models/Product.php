@@ -13,12 +13,7 @@ class Product extends Model
     public $incrementing = false;
     protected $keyType = 'string';
 
-    protected $fillable = [
-        'name',
-        'category_id',
-        'machine_purchase',
-        'description',
-    ];
+    protected $guarded = [];
 
     public function category()
     {

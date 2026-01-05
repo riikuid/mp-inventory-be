@@ -12,7 +12,7 @@ class Warehouse extends Model
 {
     use HasFactory, HasUuids;
 
-    protected $fillable = ['name'];
+    protected $guarded = [];
 
     /**
      * Relasi: Warehouse digunakan oleh banyak Section (Many-to-Many)

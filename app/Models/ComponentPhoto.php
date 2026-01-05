@@ -14,12 +14,7 @@ class ComponentPhoto extends Model
     public $incrementing = false;
     protected $keyType = 'string';
 
-    protected $fillable = [
-        'component_id',
-        'file_path',
-        'sort_order',
-        'is_primary',
-    ];
+    protected $guarded = [];
 
     protected $casts = [
         'is_primary' => 'boolean',

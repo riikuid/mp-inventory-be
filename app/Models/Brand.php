@@ -13,7 +13,7 @@ class Brand extends Model
     public $incrementing = false;
     protected $keyType = 'string';
 
-    protected $fillable = ['name'];
+    protected $guarded = [];
 
     public function variants()
     {

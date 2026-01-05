@@ -11,7 +11,9 @@ class Rack extends Model
 {
     use HasFactory, HasUuids;
 
-    protected $fillable = ['name', 'warehouse_id'];
+    protected $keyType = 'string';
+
+    protected $guarded = [];
 
     /**
      * Relasi: Rack berada di dalam satu Warehouse

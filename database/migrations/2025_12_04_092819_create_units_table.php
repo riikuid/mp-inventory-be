@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('units', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->uuid('variant_id')->nullable();
-            $table->uuid('component_id')->nullable();
-            $table->uuid('parent_unit_id')->nullable();
+            // $table->uuid('variant_id')->nullable();
+            // $table->uuid('component_id')->nullable();
+            // $table->uuid('parent_unit_id')->nullable();
             $table->string('qr_value')->unique();
             $table->enum('status', ['ACTIVE', 'BOUND', 'CONSUMED', 'DELETED'])->default('ACTIVE');
             $table->foreignUuid('rack_id')
@@ -24,33 +24,37 @@ return new class extends Migration
                 ->cascadeOnUpdate()
                 ->nullOnDelete();
 
-            $table->integer('print_count')->default(0);
+            $table->integer('print_count')->default(1);
             $table->timestamp('last_printed_at')->nullable();
-            $table->foreignId('last_printed_by')->nullable()
+            $table->foreignUuid('last_printed_by')->nullable()
                 ->constrained('users')
                 ->nullOnDelete();
 
             $table->timestamp('synced_at')->nullable();
-            $table->foreignId('created_by')->nullable()
+            $table->foreignUuid('created_by')->nullable()
                 ->constrained('users')
                 ->nullOnDelete();
-            $table->softDeletes();
-            $table->timestamps();
+            $table->foreignUuid('updated_by')->nullable()
+                ->constrained('users')
+                ->nullOnDelete();
 
-            $table->foreign('variant_id')
+            $table->foreignUuid('variant_id')->nullable()
                 ->references('id')->on('variants')
                 ->cascadeOnUpdate()
                 ->nullOnDelete();
 
-            $table->foreign('component_id')
+            $table->foreignUuid('component_id')->nullable()
                 ->references('id')->on('components')
                 ->cascadeOnUpdate()
                 ->nullOnDelete();
 
-            $table->foreign('parent_unit_id')
+            $table->foreignUuid('parent_unit_id')->nullable()
                 ->references('id')->on('units')
                 ->cascadeOnUpdate()
                 ->nullOnDelete();
+
+            $table->softDeletes();
+            $table->timestamps();
         });
     }
 

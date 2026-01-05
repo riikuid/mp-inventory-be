@@ -14,6 +14,8 @@ class SectionWarehouse extends Pivot
     // pastikan nama tabel sesuai (biasanya plural)
     protected $table = 'section_warehouses';
 
+    protected $guarded = [];
+
     // pastikan kolom primary key bernama 'id' di migration pivot
     protected static function booted()
     {

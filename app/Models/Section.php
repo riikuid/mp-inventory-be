@@ -12,7 +12,7 @@ class Section extends Model
 {
     use HasFactory, HasUuids;
 
-    protected $fillable = ['department_id', 'department_code', 'name', 'code'];
+    protected $guarded = [];
 
     /**
      * Logic Otomatis (Optional): Mengisi department_code saat department_id diisi.

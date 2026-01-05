@@ -14,15 +14,7 @@ class Variant extends Model
     public $incrementing = false;
     protected $keyType = 'string';
 
-    protected $fillable = [
-        'company_item_id',
-        'rack_id',
-        'brand_id',
-        'name',
-        'manuf_code',
-        'uom',
-        'specification',
-    ];
+    protected $guarded = [];
 
 
     public function companyItem()

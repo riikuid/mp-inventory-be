@@ -22,9 +22,11 @@ return new class extends Migration
                 ->cascadeOnUpdate()
                 ->cascadeOnDelete();
             $table->integer('quantity_needed')->default(1);
-            $table->timestamps();
 
             $table->unique(['variant_id', 'component_id']);
+
+            $table->softDeletes();
+            $table->timestamps();
         });
     }
 

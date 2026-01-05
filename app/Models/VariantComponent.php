@@ -5,21 +5,18 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class VariantComponent extends Model
 {
-    use HasFactory, HasUuids;
+    use HasFactory, HasUuids, SoftDeletes;
 
     public $incrementing = false;
     protected $keyType = 'string';
 
     protected $table = 'variant_components';
 
-    protected $fillable = [
-        'variant_id',
-        'component_id',
-        'quantity_needed',
-    ];
+    protected $guarded = [];
 
     public function variant()
     {

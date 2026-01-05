@@ -29,13 +29,50 @@ class ProductAndCompanyItemSeeder extends Seeder
             ],
             [
                 'category_id'      => $sparePartCategory->id,
-                'machine_purchase' => null,
                 'description'      => 'Berbagai jenis bearing untuk kebutuhan mesin.',
             ]
         );
 
 
 
+        /**
+         * 3. Product: Shaft Seal
+         */
+        $shaftSeal = Product::firstOrCreate(
+            [
+                'name' => 'Shaft Seal',
+            ],
+            [
+                'category_id'      => $sparePartCategory->id,
+                'description'      => 'Shaft seal untuk seal.',
+            ]
+        );
+
+        /**
+         * 4. Company items untuk Bearing
+         *    Contoh kode internal: TEC-M-SP-0027 s/d 0031
+         */
+        $shaftSealCodes = [
+            'TEC-M-SP-0027',
+            'TEC-M-SP-0028',
+            'TEC-M-SP-0029',
+            'TEC-M-SP-0030',
+            'TEC-M-SP-0031',
+        ];
+
+        foreach ($shaftSealCodes as $code) {
+            CompanyItem::firstOrCreate(
+                [
+                    'product_id'   => $shaftSeal->id,
+                    'company_code' => $code,
+                ],
+                [
+                    'default_rack_id' => null,
+                    'specification'   => null,
+                    'notes'           => null,
+                ]
+            );
+        }
         /**
          * 3. Product: Forklift Wheel
          */
@@ -45,7 +82,6 @@ class ProductAndCompanyItemSeeder extends Seeder
             ],
             [
                 'category_id'      => $sparePartCategory->id,
-                'machine_purchase' => null,
                 'description'      => 'Forklift wheel untuk kebutuhan forklift.',
             ]
         );
@@ -108,7 +144,6 @@ class ProductAndCompanyItemSeeder extends Seeder
             ],
             [
                 'category_id'      => $sparePartCategory->id,
-                'machine_purchase' => null,
                 'description'      => 'Limit switch untuk kontrol posisi / safety.',
             ]
         );
@@ -119,7 +154,7 @@ class ProductAndCompanyItemSeeder extends Seeder
         CompanyItem::firstOrCreate(
             [
                 'product_id'   => $limitSwitch->id,
-                'company_code' => '0276',
+                'company_code' => 'TEC-M-SP-0276',
             ],
             [
                 'default_rack_id' => null,

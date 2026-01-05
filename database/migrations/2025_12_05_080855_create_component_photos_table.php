@@ -17,13 +17,14 @@ return new class extends Migration
             $table->string('file_path');
             $table->integer('sort_order')->default(0);
             $table->boolean('is_primary')->default(false);
-            $table->timestamps();
-            $table->softDeletes();
 
             $table->foreign('component_id')
-                ->references('id')->on('variants')
+                ->references('id')->on('components')
                 ->cascadeOnUpdate()
                 ->cascadeOnDelete();
+
+            $table->timestamps();
+            $table->softDeletes();
         });
     }
 

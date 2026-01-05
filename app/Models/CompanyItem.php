@@ -14,13 +14,7 @@ class CompanyItem extends Model
     public $incrementing = false;
     protected $keyType = 'string';
 
-    protected $fillable = [
-        'product_id',
-        'default_rack_id',
-        'company_code',
-        'specification',
-        'notes',
-    ];
+    protected $guarded = [];
 
     public function product()
     {

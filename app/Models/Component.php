@@ -14,14 +14,7 @@ class Component extends Model
     public $incrementing = false;
     protected $keyType = 'string';
 
-    protected $fillable = [
-        'product_id',
-        'name',
-        'type',
-        'brand_id',
-        'manuf_code',
-        'specification',
-    ];
+    protected $guarded = [];
 
 
     public function product()

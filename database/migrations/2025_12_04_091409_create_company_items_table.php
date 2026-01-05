@@ -13,17 +13,18 @@ return new class extends Migration
     {
         Schema::create('company_items', function (Blueprint $table) {
             $table->uuid('id')->primary();
+            $table->foreignUuid('product_id')
+                ->constrained('products')
+                ->cascadeOnUpdate()
+                ->restrictOnDelete();
             $table->foreignUuid('default_rack_id')
                 ->nullable()
                 ->constrained('racks')
                 ->cascadeOnUpdate()
                 ->nullOnDelete();
-            $table->foreignUuid('product_id')
-                ->constrained('products')
-                ->cascadeOnUpdate()
-                ->restrictOnDelete();
-            $table->string('company_code'); // "043", "044", "AM-600"
+            $table->string('company_code'); // "TEC-MP-U-00234"
             $table->string('specification')->nullable();
+            $table->string('machine_purchase')->nullable();
             $table->text('notes')->nullable();
             $table->softDeletes();
             $table->timestamps();

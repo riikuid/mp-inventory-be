@@ -18,7 +18,6 @@ return new class extends Migration
                 ->constrained('categories')
                 ->cascadeOnUpdate()
                 ->restrictOnDelete();
-            $table->text('machine_purchase')->nullable();
             $table->text('description')->nullable();
             $table->timestamps();
         });

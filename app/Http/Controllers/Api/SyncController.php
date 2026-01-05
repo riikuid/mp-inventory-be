@@ -72,7 +72,7 @@ class SyncController extends Controller
             ->where('updated_at', '>', $sinceTime)
             ->get();
 
-        $variantComponents = VariantComponent::where('updated_at', '>', $sinceTime)->get();
+        $variantComponents = VariantComponent::withTrashed()->where('updated_at', '>', $sinceTime)->get();
 
         // $bufferStocks = BufferStock::where('updated_at', '>', $sinceTime)->get();
 
@@ -99,7 +99,6 @@ class SyncController extends Controller
             'variant_photos'    => $variantPhotos,
             'components'        => $components,
             'variant_components' => $variantComponents,
-            // 'buffer_stocks'     => $bufferStocks,
             'units'             => $units,
         ]);
     }
@@ -124,69 +123,65 @@ class SyncController extends Controller
             $results['company_items'] = $this->upsertBatch(
                 CompanyItem::class,
                 $payload['company_items'] ?? [],
-                ['product_id', 'company_code', 'is_set', 'has_components', 'initialized_at', 'initialized_by', 'notes'],
+                ['id', 'product_id', 'company_code', 'default_rack_id', 'specification',  'notes', 'created_at', 'updated_at', 'deleted_at'],
                 true
             );
 
             $results['variants'] = $this->upsertBatch(
                 Variant::class,
                 $payload['variants'] ?? [],
-                ['company_item_id', 'brand_id', 'name', 'default_location', 'spec_json', 'initialized_at', 'initialized_by', 'is_active'],
+                ['id', 'company_item_id', 'brand_id', 'name', 'uom', 'rack_id', 'specification', 'manuf_code', 'created_at', 'updated_at', 'deleted_at'],
                 true
             );
 
             $results['variant_photos'] = $this->upsertBatch(
                 VariantPhoto::class,
                 $payload['variant_photos'] ?? [],
-                ['variant_id', 'file_path', 'sort_order', 'is_primary'],
+                ['id', 'variant_id', 'file_path', 'sort_order', 'is_primary', 'created_at', 'updated_at', 'deleted_at'],
                 true
             );
 
             $results['components'] = $this->upsertBatch(
                 Component::class,
                 $payload['components'] ?? [],
-                ['product_id', 'name', 'brand_id', 'manuf_code', 'spec_json', 'is_active'],
+                ['id', 'product_id', 'name', 'type', 'brand_id', 'manuf_code', 'specification', 'created_at', 'updated_at', 'deleted_at'],
                 true
             );
 
             $results['component_photos'] = $this->upsertBatch(
                 ComponentPhoto::class,
                 $payload['component_photos'] ?? [],
-                ['component_id', 'file_path', 'sort_order', 'is_primary'],
+                ['id', 'component_id', 'file_path', 'sort_order', 'is_primary', 'created_at', 'updated_at', 'deleted_at'],
                 true
             );
 
             $results['variant_components'] = $this->upsertBatch(
                 VariantComponent::class,
                 $payload['variant_components'] ?? [],
-                ['variant_id', 'component_id', 'quantity'],
+                ['id', 'variant_id', 'component_id', 'created_at', 'updated_at', 'deleted_at'],
                 false
             );
-
-            // $results['buffer_stocks'] = $this->upsertBatch(
-            //     BufferStock::class,
-            //     $payload['buffer_stocks'] ?? [],
-            //     ['company_item_id', 'brand_id', 'location', 'min_quantity'],
-            //     false
-            // );
 
             $results['units'] = $this->upsertBatch(
                 Unit::class,
                 $payload['units'] ?? [],
                 [
+                    'id',
                     'variant_id',
                     'component_id',
                     'parent_unit_id',
                     'qr_value',
                     'status',
-                    'location',
+                    'rack_id',
                     'print_count',
                     'last_printed_at',
-                    'synced_at',
-                    'last_modified_at',
-                    'created_by',
-                    'updated_by',
                     'last_printed_by',
+                    'synced_at',
+                    'created_at',
+                    'created_by',
+                    'updated_at',
+                    'updated_by',
+                    'deleted_at'
                 ],
                 true
             );
@@ -217,6 +212,10 @@ class SyncController extends Controller
      * @param  bool          $supportsSoftDeletes
      * @return array{success_ids: array<int,string>, failed: array<int,array<string,mixed>>}
      */
+    /**
+     * Helper untuk upsert sekumpulan data per model.
+     * (UPDATED: Menangani Duplicate Entry Error)
+     */
     protected function upsertBatch(string $modelClass, array $items, array $fillableKeys, bool $supportsSoftDeletes = false): array
     {
         $successIds = [];
@@ -243,38 +242,51 @@ class SyncController extends Controller
                     $query = $query->withTrashed();
                 }
 
-                /** @var \Illuminate\Database\Eloquent\Model|null $model */
-                $model = $query->find($id);
+                // FIX 1: Gunakan withoutGlobalScopes() untuk memastikan data benar-benar dicari
+                // (kadang global scope menyembunyikan data sehingga find() return null)
+                $model = $query->withoutGlobalScopes()->find($id);
 
                 $payload = collect($row)->only($fillableKeys)->toArray();
 
-                // Cast spec_json, dsb. kalau perlu – tp karena model sudah punya casts,
-                // cukup isi raw array saja.
-
                 if ($model) {
-                    // Conflict resolution simple: kalau client kirim updated_at/last_modified_at,
-                    // kamu bisa cek di sini. Untuk sekarang kita pakai last-write-wins dari client.
+                    // Update Existing
                     $model->fill($payload);
+                    $model->save();
                 } else {
+                    // Create New
                     $model = new $modelClass();
                     $model->id = $id;
                     $model->fill($payload);
+
+                    // FIX 2: Try-Catch khusus untuk menangani Duplicate Entry
+                    try {
+                        $model->save();
+                    } catch (\Illuminate\Database\QueryException $e) {
+                        // Error Code 23000 biasanya adalah Integrity Constraint Violation (Duplicate Entry)
+                        if ($e->getCode() === '23000') {
+                            // Jika duplicate, berarti data sebenarnya ADA tapi tidak terdeteksi oleh find() awal.
+                            // Kita coba load ulang dan paksa update.
+                            $model = $query->withoutGlobalScopes()->find($id);
+                            if ($model) {
+                                $model->fill($payload);
+                                $model->save();
+                            } else {
+                                // Kalau masih tidak ketemu tapi error duplicate, lempar error asli
+                                throw $e;
+                            }
+                        } else {
+                            throw $e;
+                        }
+                    }
                 }
 
-                // Atur updated_at secara otomatis
-                // Kalau client bawa last_modified_at / updated_at bisa dipertimbangkan,
-                // tapi untuk simple version kita percaya timestamp server.
-                $model->save();
-
-                // Soft delete kalau client kirim deleted_at != null
+                // Soft delete logic (tetap sama)
                 if ($supportsSoftDeletes && array_key_exists('deleted_at', $row)) {
                     if ($row['deleted_at']) {
-                        // kalau belum dihapus
                         if (is_null($model->deleted_at)) {
                             $model->delete();
                         }
                     } else {
-                        // kalau ada deleted_at null, bisa di-restore
                         if (method_exists($model, 'restore')) {
                             $model->restore();
                         }

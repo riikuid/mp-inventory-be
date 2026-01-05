@@ -28,9 +28,9 @@ return new class extends Migration
                 ->cascadeOnUpdate()
                 ->nullOnDelete();
             $table->string('name');
-            $table->string('uom');
-            $table->json('specification')->nullable();
-            $table->json('manuf_code')->nullable();
+            $table->string('uom')->nullable();
+            $table->text('specification')->nullable();
+            $table->string('manuf_code')->nullable();
 
             $table->softDeletes();
             $table->timestamps();

@@ -11,7 +11,9 @@ class Department extends Model
 {
     use HasFactory, HasUuids;
 
-    protected $fillable = ['name', 'code'];
+    protected $keyType = 'string';
+
+    protected $guarded = [];
 
     /**
      * Relasi: Satu Department memiliki banyak Section

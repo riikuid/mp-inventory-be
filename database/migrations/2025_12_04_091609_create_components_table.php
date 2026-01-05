@@ -18,14 +18,14 @@ return new class extends Migration
                 ->cascadeOnUpdate()
                 ->restrictOnDelete();
             $table->string('name');
-            $table->string('type'); // SEPARATE_BOX / IN_BOX_PART, dll
+            $table->string('type'); // SEPARATE / IN_BOX
             $table->foreignUuid('brand_id')
                 ->nullable()
                 ->constrained('brands')
                 ->cascadeOnUpdate()
                 ->nullOnDelete();
-            $table->string('manuf_code');
-            $table->json('specification')->nullable();
+            $table->string('manuf_code')->nullable();;
+            $table->text('specification')->nullable();
             $table->softDeletes();
             $table->timestamps();
 

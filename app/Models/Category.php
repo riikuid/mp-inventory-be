@@ -13,11 +13,7 @@ class Category extends Model
     public $incrementing = false;
     protected $keyType = 'string';
 
-    protected $fillable = [
-        'name',
-        'code',
-        'category_parent_id',
-    ];
+    protected $guarded = [];
 
     public function products()
     {
